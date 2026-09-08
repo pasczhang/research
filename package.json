@@ -1,0 +1,9 @@
+{
+  "name": "personal-investment-research",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Personal investment research static site",
+  "scripts": {
+    "start": "npx --yes serve -l 4173"
+  }
+}

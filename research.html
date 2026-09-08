@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>研究报告 | 个人投资研究系统</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none"><path d="M6 22 L12 14 L17 18 L26 8" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="26" cy="8" r="2" fill="#c9a227"/></svg>
+        </span>
+        <span>个人投资研究系统</span>
+      </a>
+      <nav>
+        <a href="index.html">首页</a>
+        <a href="market.html">市场看板</a>
+        <a href="watchlist.html">自选股</a>
+        <a class="active" href="research.html">研究报告</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div>
+        <h1>研究报告</h1>
+        <p>沉淀个人研究框架与跟踪笔记，不构成任何投资建议。</p>
+      </div>
+      <div class="meta-chip">
+        <div class="status"><span class="status-dot live"></span><span>内部笔记</span></div>
+        <div data-clock></div>
+      </div>
+    </section>
+
+    <section class="report-grid">
+      <article class="report">
+        <span class="tag">宏观</span>
+        <h3>三市场流动性对照</h3>
+        <p>比较内地、香港与美国基准指数的波动节奏，用于判断风险偏好是同步扩散还是区域分化。</p>
+      </article>
+      <article class="report">
+        <span class="tag">仓位</span>
+        <h3>回撤纪律检查清单</h3>
+        <p>从最大回撤、持仓集中度和现金比例三项指标，定期复核组合是否偏离预设风险预算。</p>
+      </article>
+      <article class="report">
+        <span class="tag">方法</span>
+        <h3>指数锚点研究法</h3>
+        <p>先看沪深300、恒生指数、标普500的相对强弱，再下钻到行业与个股，避免孤立解读单一标的。</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner"><strong>风险提示：</strong>投资有风险，决策需谨慎</div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

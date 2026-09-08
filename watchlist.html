@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>自选股 | 个人投资研究系统</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none"><path d="M6 22 L12 14 L17 18 L26 8" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="26" cy="8" r="2" fill="#c9a227"/></svg>
+        </span>
+        <span>个人投资研究系统</span>
+      </a>
+      <nav>
+        <a href="index.html">首页</a>
+        <a href="market.html">市场看板</a>
+        <a class="active" href="watchlist.html">自选股</a>
+        <a href="research.html">研究报告</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div>
+        <h1>自选股</h1>
+        <p>本地保存关注标的，适合个人研究跟踪。数据仅供参考。</p>
+      </div>
+      <div class="meta-chip">
+        <div class="status"><span class="status-dot live"></span><span data-updated>本地列表</span></div>
+        <div data-clock></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>我的关注</h2>
+        <form class="toolbar" data-watch-form>
+          <input data-code name="code" placeholder="输入代码，如 600519" autocomplete="off">
+          <button type="submit">添加</button>
+        </form>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>名称</th>
+            <th>代码</th>
+            <th class="num">最新</th>
+            <th class="num">涨跌幅</th>
+            <th class="num">操作</th>
+          </tr>
+        </thead>
+        <tbody data-watchlist>
+          <tr><td colspan="5" class="empty">正在加载...</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner"><strong>风险提示：</strong>投资有风险，决策需谨慎</div>
+  </footer>
+
+  <script src="js/quotes.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/watchlist.js"></script>
+</body>
+</html>

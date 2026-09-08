@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>市场看板 | 个人投资研究系统</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none"><path d="M6 22 L12 14 L17 18 L26 8" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="26" cy="8" r="2" fill="#c9a227"/></svg>
+        </span>
+        <span>个人投资研究系统</span>
+      </a>
+      <nav>
+        <a href="index.html">首页</a>
+        <a class="active" href="market.html">市场看板</a>
+        <a href="watchlist.html">自选股</a>
+        <a href="research.html">研究报告</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div>
+        <h1>市场看板</h1>
+        <p>覆盖 A 股、港股与美股核心基准，便于快速比较当日波动。</p>
+      </div>
+      <div class="meta-chip">
+        <div class="status"><span class="status-dot"></span><span data-updated>等待行情</span></div>
+        <div data-clock></div>
+      </div>
+    </section>
+
+    <section class="cards" aria-label="核心指数">
+      <article class="card" data-index="csi300"><div class="skeleton"></div></article>
+      <article class="card" data-index="hsi"><div class="skeleton"></div></article>
+      <article class="card" data-index="spx"><div class="skeleton"></div></article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>指数一览</h2>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>指数</th>
+            <th>市场</th>
+            <th class="num">最新</th>
+            <th class="num">涨跌</th>
+            <th class="num">涨跌幅</th>
+          </tr>
+        </thead>
+        <tbody data-board>
+          <tr><td colspan="5" class="empty">正在加载行情...</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner"><strong>风险提示：</strong>投资有风险，决策需谨慎</div>
+  </footer>
+
+  <script src="js/quotes.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/market.js"></script>
+</body>
+</html>
