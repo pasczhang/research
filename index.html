@@ -4,10 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>个人投资研究系统</title>
-  <meta name="description" content="个人投资研究系统首页，跟踪沪深300、恒生指数与标普500。">
+  <meta name="description" content="个人投资研究系统首页：自选概览、今日盈亏估算与沪深300/恒生/标普500真实行情。">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://qt.gtimg.cn">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -20,6 +21,7 @@
         </span>
         <span>个人投资研究系统</span>
       </a>
+      <button class="nav-toggle" type="button" data-nav-toggle aria-label="打开菜单" aria-expanded="false">菜单</button>
       <nav>
         <a class="active" href="index.html">首页</a>
         <a href="market.html">市场看板</a>
@@ -32,35 +34,59 @@
   <main class="page">
     <section class="hero">
       <div>
-        <h1>市场概览</h1>
-        <p>跟踪核心基准指数，辅助独立研究与仓位决策。</p>
+        <h1>研究工作台</h1>
+        <p>深色终端式布局，聚合持仓概览与跨市场基准，数据仅供个人研究。</p>
       </div>
       <div class="meta-chip">
-        <div class="status"><span class="status-dot"></span><span data-updated>等待行情</span></div>
+        <div class="meta-actions">
+          <div class="status"><span class="status-dot"></span><span data-updated>等待行情</span></div>
+          <button type="button" data-refresh>刷新</button>
+        </div>
         <div data-clock></div>
       </div>
     </section>
 
+    <div class="banner" data-banner hidden></div>
+
+    <section class="stats" aria-label="核心概览">
+      <article class="stat-card">
+        <div class="stat-label">自选股数量</div>
+        <div class="stat-value" data-stat-count>--</div>
+        <div class="stat-hint" data-stat-hold>读取本地列表中…</div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-label">今日盈亏估算</div>
+        <div class="stat-value" data-stat-pnl>--</div>
+        <div class="stat-hint" data-stat-pnl-hint>按持仓数量 × 当日涨跌额估算</div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-label">市场情绪简评</div>
+        <div class="stat-value" data-stat-mood>--</div>
+        <div class="stat-hint" data-stat-mood-desc>综合沪深300、恒生指数与标普500当日涨跌</div>
+      </article>
+    </section>
+
     <section class="cards" aria-label="实时指数">
       <article class="card" data-index="csi300">
-        <div class="card-head"><div class="card-name">沪深300</div><div class="market-tag">CN</div></div>
+        <div class="card-head"><div class="card-name">沪深300</div><div class="market-tag">A股</div></div>
         <div class="skeleton"></div>
       </article>
       <article class="card" data-index="hsi">
-        <div class="card-head"><div class="card-name">恒生指数</div><div class="market-tag">HK</div></div>
+        <div class="card-head"><div class="card-name">恒生指数</div><div class="market-tag">港股</div></div>
         <div class="skeleton"></div>
       </article>
       <article class="card" data-index="spx">
-        <div class="card-head"><div class="card-name">标普500</div><div class="market-tag">US</div></div>
+        <div class="card-head"><div class="card-name">标普500</div><div class="market-tag">美股</div></div>
         <div class="skeleton"></div>
       </article>
     </section>
   </main>
 
   <footer class="site-footer">
-    <div class="footer-inner"><strong>风险提示：</strong>投资有风险，决策需谨慎</div>
+    <div class="footer-inner"><strong>风险提示：</strong>投资有风险，决策需谨慎。行情来自公开接口，可能存在延迟。</div>
   </footer>
 
+  <script src="js/storage.js"></script>
   <script src="js/quotes.js"></script>
   <script src="js/app.js"></script>
   <script src="js/home.js"></script>

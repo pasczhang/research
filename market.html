@@ -7,6 +7,8 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://qt.gtimg.cn">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -19,6 +21,7 @@
         </span>
         <span>个人投资研究系统</span>
       </a>
+      <button class="nav-toggle" type="button" data-nav-toggle aria-label="打开菜单" aria-expanded="false">菜单</button>
       <nav>
         <a href="index.html">首页</a>
         <a class="active" href="market.html">市场看板</a>
@@ -32,13 +35,18 @@
     <section class="hero">
       <div>
         <h1>市场看板</h1>
-        <p>覆盖 A 股、港股与美股核心基准，便于快速比较当日波动。</p>
+        <p>A 股、港股、美股主要指数实时报价，并以近 30 个交易日收盘价观察趋势。</p>
       </div>
       <div class="meta-chip">
-        <div class="status"><span class="status-dot"></span><span data-updated>等待行情</span></div>
+        <div class="meta-actions">
+          <div class="status"><span class="status-dot"></span><span data-updated>等待行情</span></div>
+          <button type="button" data-refresh>刷新</button>
+        </div>
         <div data-clock></div>
       </div>
     </section>
+
+    <div class="banner" data-banner hidden></div>
 
     <section class="cards" aria-label="核心指数">
       <article class="card" data-index="csi300"><div class="skeleton"></div></article>
@@ -50,27 +58,33 @@
       <div class="panel-head">
         <h2>指数一览</h2>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>指数</th>
-            <th>市场</th>
-            <th class="num">最新</th>
-            <th class="num">涨跌</th>
-            <th class="num">涨跌幅</th>
-          </tr>
-        </thead>
-        <tbody data-board>
-          <tr><td colspan="5" class="empty">正在加载行情...</td></tr>
-        </tbody>
-      </table>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>指数</th>
+              <th>市场</th>
+              <th class="num">最新</th>
+              <th class="num">涨跌</th>
+              <th class="num">涨跌幅</th>
+            </tr>
+          </thead>
+          <tbody data-board>
+            <tr><td colspan="5" class="empty">正在加载行情...</td></tr>
+          </tbody>
+        </table>
+      </div>
     </section>
+
+    <section class="chart-grid" data-charts aria-label="近30日走势"></section>
   </main>
 
   <footer class="site-footer">
-    <div class="footer-inner"><strong>风险提示：</strong>投资有风险，决策需谨慎</div>
+    <div class="footer-inner"><strong>风险提示：</strong>投资有风险，决策需谨慎。图表为公开行情拟合，不构成买卖建议。</div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <script src="js/storage.js"></script>
   <script src="js/quotes.js"></script>
   <script src="js/app.js"></script>
   <script src="js/market.js"></script>

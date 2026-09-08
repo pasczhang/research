@@ -7,6 +7,7 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://qt.gtimg.cn">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -19,6 +20,7 @@
         </span>
         <span>个人投资研究系统</span>
       </a>
+      <button class="nav-toggle" type="button" data-nav-toggle aria-label="打开菜单" aria-expanded="false">菜单</button>
       <nav>
         <a href="index.html">首页</a>
         <a href="market.html">市场看板</a>
@@ -32,43 +34,69 @@
     <section class="hero">
       <div>
         <h1>自选股</h1>
-        <p>本地保存关注标的，适合个人研究跟踪。数据仅供参考。</p>
+        <p>持仓与关注分组保存在浏览器本地。填写成本价与数量后，可跟踪盈亏比例。</p>
       </div>
       <div class="meta-chip">
-        <div class="status"><span class="status-dot live"></span><span data-updated>本地列表</span></div>
+        <div class="meta-actions">
+          <div class="status"><span class="status-dot"></span><span data-updated>本地列表</span></div>
+          <button type="button" data-refresh>刷新</button>
+        </div>
         <div data-clock></div>
       </div>
     </section>
 
+    <div class="banner" data-banner hidden></div>
+
     <section class="panel">
       <div class="panel-head">
-        <h2>我的关注</h2>
-        <form class="toolbar" data-watch-form>
-          <input data-code name="code" placeholder="输入代码，如 600519" autocomplete="off">
-          <button type="submit">添加</button>
-        </form>
+        <h2>我的标的</h2>
+        <div class="toolbar">
+          <div class="filter-bar" data-filter>
+            <button type="button" class="ghost active" data-filter-value="all">全部</button>
+            <button type="button" class="ghost" data-filter-value="hold">持仓</button>
+            <button type="button" class="ghost" data-filter-value="watch">关注</button>
+          </div>
+          <form class="toolbar" data-watch-form>
+            <input data-code name="code" placeholder="代码，如 600519 / 00700 / AAPL" autocomplete="off">
+            <select data-group aria-label="分组">
+              <option value="watch">关注</option>
+              <option value="hold">持仓</option>
+            </select>
+            <button type="submit">添加</button>
+          </form>
+          <div class="export-bar">
+            <button type="button" class="ghost" data-export="csv">导出 CSV</button>
+            <button type="button" class="ghost" data-export="json">导出 JSON</button>
+          </div>
+        </div>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>名称</th>
-            <th>代码</th>
-            <th class="num">最新</th>
-            <th class="num">涨跌幅</th>
-            <th class="num">操作</th>
-          </tr>
-        </thead>
-        <tbody data-watchlist>
-          <tr><td colspan="5" class="empty">正在加载...</td></tr>
-        </tbody>
-      </table>
+      <div class="table-wrap">
+        <table class="responsive">
+          <thead>
+            <tr>
+              <th>名称</th>
+              <th>代码</th>
+              <th class="num">最新</th>
+              <th class="num">涨跌幅</th>
+              <th class="num">成本价</th>
+              <th class="num">数量</th>
+              <th class="num">盈亏比例</th>
+              <th class="num">操作</th>
+            </tr>
+          </thead>
+          <tbody data-watchlist>
+            <tr><td colspan="8" class="empty">正在加载...</td></tr>
+          </tbody>
+        </table>
+      </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <div class="footer-inner"><strong>风险提示：</strong>投资有风险，决策需谨慎</div>
+    <div class="footer-inner"><strong>风险提示：</strong>投资有风险，决策需谨慎。盈亏为估算值，未计税费与滑点。</div>
   </footer>
 
+  <script src="js/storage.js"></script>
   <script src="js/quotes.js"></script>
   <script src="js/app.js"></script>
   <script src="js/watchlist.js"></script>
