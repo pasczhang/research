@@ -23,6 +23,7 @@ python -m http.server 4173
 - **真实行情**：腾讯财经 → 新浪财经 → 东方财富，脚本加载规避 CORS；失败时使用上次成功缓存并给出提示。
 - **首页**：自选数量、今日盈亏估算、市场情绪，以及沪深300 / 恒生 / 标普500。
 - **市场看板**：A 股、港股、美股主要指数 + ECharts 近 30 日走势。
+- **涨停板分析**：最近收盘日全部涨停股（收盘价、涨幅、成交额亿元、首板/连板、核心炒作题材）。
 - **自选股**：持仓 / 关注分组、成本价、数量、盈亏比例、CSV / JSON 导出。
 - **研究报告**：茅台估值、宁德时代技术面等可点击模板。
 
@@ -35,7 +36,7 @@ python -m http.server 4173
 | `js/storage.js` | LocalStorage 适配层，迁移后端时优先改这里 |
 | `js/quotes.js` | 行情与 K 线 |
 | `js/app.js` | 时钟、刷新、Toast、导航 |
-| `js/home.js` / `watchlist.js` / `market.js` / `research.js` | 各页面 |
+| `js/home.js` / `watchlist.js` / `market.js` / `limit.js` / `research.js` | 各页面 |
 
 第三方库（ECharts、字体）走 CDN。
 

@@ -56,7 +56,7 @@
       return;
     }
     banner.hidden = false;
-    banner.className = "banner " + (type || "warn");
+    banner.className = "banner " + (type || "info");
     banner.textContent = message;
   }
 

@@ -120,6 +120,7 @@
       percent: percent,
       high: num(parts[33]),
       low: num(parts[34]),
+      volume: num(parts[6]),
       source: "tencent"
     };
   }
@@ -163,6 +164,7 @@
         percent: prev ? (change / prev) * 100 : 0,
         high: num(parts[4]),
         low: num(parts[5]),
+        volume: num(parts[8]),
         source: "sina"
       };
     }
@@ -224,7 +226,7 @@
       .join(",");
     if (!secids) throw new Error("no em ids");
     const url =
-      "https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&invt=2&fields=f2,f3,f4,f12,f14&secids=" +
+      "https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&invt=2&fields=f2,f3,f4,f5,f12,f14&secids=" +
       encodeURIComponent(secids);
     const res = await fetch(url);
     if (!res.ok) throw new Error("http " + res.status);
@@ -251,6 +253,7 @@
         prevClose: price - change,
         change: change,
         percent: percent,
+        volume: Number(row.f5),
         source: "eastmoney"
       };
     });
@@ -472,6 +475,358 @@
     return null;
   }
 
+  function pad2(n) {
+    return String(n).padStart(2, "0");
+  }
+
+  function ymd(d) {
+    return d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate());
+  }
+
+  function formatYmd(s) {
+    if (!s || String(s).length !== 8) return s || "--";
+    return String(s).slice(0, 4) + "-" + String(s).slice(4, 6) + "-" + String(s).slice(6, 8);
+  }
+
+  async function fetchJson(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("http " + res.status);
+    return res.json();
+  }
+
+  async function fetchJsonp(url, opts) {
+    const run = function () {
+      const name = "ir_cb_" + ++scriptSeq;
+      const join = url.indexOf("?") >= 0 ? "&" : "?";
+      const src = url + join + "cb=" + name + "&_=" + Date.now();
+      return new Promise(function (resolve, reject) {
+        let done = false;
+        global[name] = function (data) {
+          done = true;
+          try {
+            delete global[name];
+          } catch (e) {}
+          resolve(data);
+        };
+        loadScript(src, "utf-8").then(
+          function () {
+            setTimeout(function () {
+              if (!done) reject(new Error("jsonp empty"));
+            }, 80);
+          },
+          reject
+        );
+      });
+    };
+    if (opts && opts.nolock) return run();
+    return withLock(run);
+  }
+
+  async function getTopicPool(endpoint, date, sort, pageindex, pagesize) {
+    const q =
+      "ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wz.ztzt&Pageindex=" +
+      (pageindex || 0) +
+      "&pagesize=" +
+      (pagesize || 500) +
+      "&sort=" +
+      encodeURIComponent(sort || "amount:desc") +
+      "&date=" +
+      date;
+    const url = "https://push2ex.eastmoney.com/" + endpoint + "?" + q;
+    let json = null;
+    try {
+      json = await fetchJson(url);
+    } catch (err) {
+      json = await fetchJsonp(url);
+    }
+    const data = json && json.data;
+    return { date: date, total: data && data.tc, pool: (data && data.pool) || [] };
+  }
+
+  async function getTopicPoolAll(endpoint, date, sort) {
+    const first = await getTopicPool(endpoint, date, sort, 0, 200);
+    const pool = first.pool.slice();
+    const total = Number(first.total) || pool.length;
+    let page = 1;
+    while (pool.length < total && page < 8) {
+      const more = await getTopicPool(endpoint, date, sort, page, 200);
+      if (!more.pool.length) break;
+      pool.push.apply(pool, more.pool);
+      page += 1;
+    }
+    return { date: date, total: total, pool: pool };
+  }
+
+  function clistRows(json) {
+    const diff = json && json.data && json.data.diff;
+    if (Array.isArray(diff)) return diff;
+    if (diff && typeof diff === "object") {
+      return Object.keys(diff).map(function (k) {
+        return diff[k];
+      });
+    }
+    return [];
+  }
+
+  async function fetchClist(fs, pz) {
+    const qs =
+      "?ut=fa5fd1943c7b386f172d6893dbfba10b&pn=1&pz=" +
+      (pz || 80) +
+      "&po=1&np=1&fltt=2&invt=2&fid=f3&fs=" +
+      encodeURIComponent(fs) +
+      "&fields=f12,f14,f3";
+    const urls = [
+      "https://82.push2.eastmoney.com/api/qt/clist/get" + qs,
+      "https://push2.eastmoney.com/api/qt/clist/get" + qs
+    ];
+    for (let i = 0; i < urls.length; i++) {
+      try {
+        const rows = clistRows(await fetchJsonp(urls[i], { nolock: true }));
+        if (rows.length) return rows;
+      } catch (err) {}
+      try {
+        const rows = clistRows(await fetchJson(urls[i]));
+        if (rows.length) return rows;
+      } catch (err) {}
+    }
+    return [];
+  }
+
+  function isNoiseTheme(name) {
+    return /昨日|连板|打板|炸板|涨停|跌停|高标|一字|T字|首板|回封|晋级|亏钱|赚钱|题材股|趋势股|次新|新股|ST股|沪股通|深股通|融资融券|东方财富热股|牛股概念|参股券商|参股银行|参股保险/.test(
+      name || ""
+    );
+  }
+
+  function themeScore(name, pct, industry) {
+    let score = Number(pct) || 0;
+    const theme = name || "";
+    const ind = industry || "";
+    if (ind && (theme.indexOf(ind) !== -1 || ind.indexOf(theme) !== -1)) score += 12;
+    if (/农|粮|种植|种业|畜牧|渔|草甘膦|转基因|农药/.test(theme) && /农|种植|林|牧|渔/.test(ind)) score += 12;
+    if (/家电|厨电|炊具/.test(theme) && /家电|电器/.test(ind)) score += 12;
+    return score;
+  }
+
+  /**
+   * 用当日涨幅靠前的概念板块成分，给涨停股匹配最热的炒作题材。
+   * 例如农业股可能落到「粮食概念」「农业种植」，而不是仅显示行业「种植业」。
+   */
+  async function mapHotThemes(rows) {
+    const wanted = {};
+    const industry = {};
+    rows.forEach(function (row) {
+      wanted[String(row.code)] = true;
+      industry[String(row.code)] = row.industry || "";
+    });
+    const boards = (await fetchClist("m:90+t:3+f:!50", 80)).filter(function (b) {
+      return b && b.f12 && b.f14 && !isNoiseTheme(b.f14);
+    }).slice(0, 28);
+
+    const themeByCode = {};
+    for (let i = 0; i < boards.length; i += 6) {
+      const chunk = boards.slice(i, i + 6);
+      await Promise.all(
+        chunk.map(async function (board) {
+          const list = await fetchClist("b:" + board.f12 + "+f:!50", 400);
+          const pct = Number(board.f3) || 0;
+          list.forEach(function (item) {
+            const code = String(item.f12 || "");
+            if (!wanted[code]) return;
+            const next = { name: board.f14, pct: pct };
+            const prev = themeByCode[code];
+            if (!prev || themeScore(next.name, next.pct, industry[code]) > themeScore(prev.name, prev.pct, industry[code])) {
+              themeByCode[code] = next;
+            }
+          });
+        })
+      );
+    }
+    return themeByCode;
+  }
+
+  async function fillThemesFromStockTags(rows, themeByCode) {
+    const boards = (await fetchClist("m:90+t:3+f:!50", 80)).filter(function (b) {
+      return b && b.f14 && !isNoiseTheme(b.f14);
+    });
+    const pctMap = {};
+    boards.forEach(function (b) {
+      pctMap[b.f14] = Number(b.f3) || 0;
+    });
+    const missing = rows.filter(function (row) {
+      return !themeByCode[row.code];
+    });
+    for (let i = 0; i < missing.length; i += 8) {
+      const chunk = missing.slice(i, i + 8);
+      await Promise.all(
+        chunk.map(async function (row) {
+          const secid = row.em || (String(row.symbol || "").indexOf("sh") === 0 ? "1." + row.code : "0." + row.code);
+          try {
+            const json = await fetchJsonp(
+              "https://push2.eastmoney.com/api/qt/stock/get?fltt=2&invt=2&secid=" +
+                encodeURIComponent(secid) +
+                "&fields=f127,f129",
+              { nolock: true }
+            );
+            const tags = String((json.data && json.data.f129) || "")
+              .split(/[,，]/)
+              .map(function (s) {
+                return s.trim();
+              })
+              .filter(Boolean);
+            let best = null;
+            tags.forEach(function (tag) {
+              if (isNoiseTheme(tag) || pctMap[tag] == null) return;
+              const cand = { name: tag, pct: pctMap[tag] };
+              if (
+                !best ||
+                themeScore(cand.name, cand.pct, row.industry) > themeScore(best.name, best.pct, row.industry)
+              ) {
+                best = cand;
+              }
+            });
+            if (!best && tags.length) {
+              const picked =
+                tags.filter(function (tag) {
+                  return !isNoiseTheme(tag) && !/板块$/.test(tag);
+                })[0] || tags[0];
+              best = { name: picked, pct: 0 };
+            }
+            if (best) themeByCode[row.code] = best;
+          } catch (err) {}
+        })
+      );
+    }
+  }
+
+  function emToSymbol(code, market) {
+    const c = String(code || "").padStart(6, "0");
+    if (market === 1 || c.charAt(0) === "6" || c.charAt(0) === "9") return parseSymbol("sh" + c);
+    if (market === 2 || c.charAt(0) === "8" || c.charAt(0) === "4") {
+      const item = parseSymbol("sz" + c) || {};
+      item.symbol = "bj" + c;
+      item.tencent = "bj" + c;
+      item.sina = "bj" + c;
+      item.sinaFull = "bj" + c;
+      item.market = "京市";
+      return item;
+    }
+    return parseSymbol("sz" + c);
+  }
+
+  function mapZtRow(p) {
+    const item = emToSymbol(p.c, p.m) || {};
+    const zttj = p.zttj || {};
+    const boards = Number(p.lbc) || 1;
+    return {
+      code: String(p.c),
+      name: p.n,
+      symbol: item.symbol,
+      tencent: item.tencent,
+      sina: item.sina,
+      sinaFull: item.sinaFull,
+      em: item.em,
+      market: item.market || "A股",
+      price: Number(p.p) / 1000,
+      percent: Number(p.zdp),
+      amount: Number(p.amount),
+      turnover: Number(p.hs),
+      boards: boards,
+      ztDays: Number(zttj.days) || boards,
+      ztCount: Number(zttj.ct) || boards,
+      industry: p.hybk || "",
+      breakTimes: Number(p.zbc) || 0,
+      sealFund: Number(p.fund) || 0,
+      firstSeal: p.fbt,
+      lastSeal: p.lbt
+    };
+  }
+
+  function boardLabel(row) {
+    if (row.boards <= 1) return "首板";
+    return row.boards + "板";
+  }
+
+  function buildReason(row) {
+    const parts = [];
+    if (row.boards <= 1) parts.push("当日首板");
+    else parts.push("连板晋级至第" + row.boards + "板（近" + row.ztDays + "天" + row.ztCount + "板）");
+    if (row.breakTimes > 0) parts.push("盘中炸板" + row.breakTimes + "次后回封");
+    else parts.push("封板后未开板");
+    if (Number.isFinite(row.turnover) && row.turnover > 0) {
+      parts.push("换手率" + row.turnover.toFixed(2) + "%");
+    }
+    return parts.join("；");
+  }
+
+  /**
+   * 最近一个有数据的交易日：全部涨停股 + 成交额 + 当日核心炒作题材。
+   */
+  async function getLimitSnapshot() {
+    let lastError = null;
+    const now = new Date();
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+      if (d.getDay() === 0 || d.getDay() === 6) continue;
+      const date = ymd(d);
+      try {
+        const ztRes = await getTopicPoolAll("getTopicZTPool", date, "amount:desc");
+        if (!ztRes.pool.length) continue;
+        const dtRes = await getTopicPoolAll("getTopicDTPool", date, "fund:asc").catch(function () {
+          return { pool: [] };
+        });
+        const zt = ztRes.pool.map(mapZtRow).sort(function (a, b) {
+          return b.boards - a.boards || b.amount - a.amount;
+        });
+        let themes = {};
+        try {
+          themes = await mapHotThemes(zt);
+        } catch (e) {}
+        try {
+          await fillThemesFromStockTags(zt, themes);
+        } catch (e) {}
+        zt.forEach(function (row) {
+          const hit = themes[row.code];
+          row.theme = (hit && hit.name) || row.industry || "--";
+          row.themePct = hit ? hit.pct : null;
+          row.boardLabel = boardLabel(row);
+          row.reason = buildReason(row);
+        });
+        const boards = zt.map(function (r) {
+          return r.boards;
+        });
+        return {
+          date: date,
+          dateText: formatYmd(date),
+          ztCount: zt.length,
+          dtCount: (dtRes.pool || []).length,
+          maxBoard: boards.length ? Math.max.apply(null, boards) : 0,
+          firstCount: zt.filter(function (r) {
+            return r.boards <= 1;
+          }).length,
+          rows: zt,
+          stale: false
+        };
+      } catch (err) {
+        lastError = err;
+      }
+    }
+    throw lastError || new Error("暂无涨停池数据");
+  }
+
+  function formatVolume(hands) {
+    if (hands == null || !Number.isFinite(Number(hands))) return "--";
+    const n = Number(hands);
+    if (n >= 10000) return (n / 10000).toFixed(2) + " 万手";
+    return formatNumber(n, 0) + " 手";
+  }
+
+  /** 成交金额统一为亿元，保留两位小数 */
+  function formatAmount(yuan) {
+    if (yuan == null || !Number.isFinite(Number(yuan))) return "--";
+    return (Number(yuan) / 1e8).toFixed(2);
+  }
+
   global.IRQuotes = {
     HOME_INDICES: HOME_INDICES,
     BOARD_INDICES: BOARD_INDICES,
@@ -484,6 +839,9 @@
     signed: signed,
     changeClass: changeClass,
     sparkPath: sparkPath,
-    parseSymbol: parseSymbol
+    parseSymbol: parseSymbol,
+    getLimitSnapshot: getLimitSnapshot,
+    formatVolume: formatVolume,
+    formatAmount: formatAmount
   };
 })(window);

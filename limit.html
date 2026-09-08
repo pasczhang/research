@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>涨停板分析 | 个人投资研究系统</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://push2ex.eastmoney.com">
+  <link rel="preconnect" href="https://qt.gtimg.cn">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none"><path d="M6 22 L12 14 L17 18 L26 8" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="26" cy="8" r="2" fill="#c9a227"/></svg>
+        </span>
+        <span>个人投资研究系统</span>
+      </a>
+      <button class="nav-toggle" type="button" data-nav-toggle aria-label="打开菜单" aria-expanded="false">菜单</button>
+      <nav>
+        <a href="index.html">首页</a>
+        <a href="market.html">市场看板</a>
+        <a class="active" href="limit.html">涨停板分析</a>
+        <a href="watchlist.html">自选股</a>
+        <a href="research.html">研究报告</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div>
+        <h1>涨停板分析</h1>
+        <p>覆盖最近一个交易日全部涨停股票，并匹配当日最热的炒作题材（如农业股对应粮食/种植概念）。</p>
+      </div>
+      <div class="meta-chip">
+        <div class="meta-actions">
+          <div class="status"><span class="status-dot"></span><span data-updated>等待涨停池</span></div>
+          <button type="button" data-refresh>刷新</button>
+        </div>
+        <div data-clock></div>
+      </div>
+    </section>
+
+    <div class="banner" data-banner hidden></div>
+
+    <section class="stats stats-5" aria-label="涨跌停概览">
+      <article class="stat-card">
+        <div class="stat-label">数据日期</div>
+        <div class="stat-value" data-stat-date>--</div>
+        <div class="stat-hint">最近有涨停记录的交易日</div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-label">涨停家数</div>
+        <div class="stat-value up" data-stat-zt>--</div>
+        <div class="stat-hint">全市场涨停池合计</div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-label">跌停家数</div>
+        <div class="stat-value down" data-stat-dt>--</div>
+        <div class="stat-hint">全市场跌停池合计</div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-label">最高连板</div>
+        <div class="stat-value" data-stat-max>--</div>
+        <div class="stat-hint">当日连板高度</div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-label">首板家数</div>
+        <div class="stat-value" data-stat-first>--</div>
+        <div class="stat-hint">涨停池中的首板数量</div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>全部涨停标的</h2>
+      </div>
+      <div class="table-wrap">
+        <table class="responsive">
+          <thead>
+            <tr>
+              <th>序号</th>
+              <th>名称</th>
+              <th>代码</th>
+              <th class="num">收盘价</th>
+              <th class="num">涨幅</th>
+              <th class="num">成交额(亿)</th>
+              <th>板型</th>
+              <th>核心题材</th>
+              <th>涨停原因</th>
+            </tr>
+          </thead>
+          <tbody data-limit-table>
+            <tr><td colspan="9" class="empty">正在加载涨停池...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner"><strong>风险提示：</strong>投资有风险，决策需谨慎。涨停复盘不构成买卖建议，连板标的波动极大。</div>
+  </footer>
+
+  <script src="js/storage.js"></script>
+  <script src="js/quotes.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/limit.js"></script>
+</body>
+</html>
